@@ -51,7 +51,7 @@ class Graph {
       .attr('font-size', '16px')
       .attr('font-weight', 'bold');
 
-    // Відображення задач для кожної гілки
+    // Відображення задач і ліній зв'язку
     branchGroups.each(function (branch: Branch) {
       const taskSelection = d3
         .select(this)
@@ -60,10 +60,22 @@ class Graph {
         .enter()
         .append('circle')
         .attr('class', 'task')
-        .attr('cx', (d: Task, i: number) => 100 + i * 50)
+        .attr('cx', (d: Task, i: number) => 100 + i * 80)
         .attr('cy', 0)
         .attr('r', 10)
         .attr('fill', 'blue');
+
+      // Додавання ліній зв'язку для задач
+      taskSelection.each(function (d, i) {
+        d3.select(this.parentNode as SVGGElement) // Використовуємо привід типу тут
+          .append('line')
+          .attr('x1', 0)
+          .attr('y1', 0)
+          .attr('x2', 100 + i * 80)
+          .attr('y2', 0)
+          .attr('stroke', 'black')
+          .attr('stroke-width', 1);
+      });
 
       // Додати текст для задач
       d3.select(this)
@@ -72,12 +84,12 @@ class Graph {
         .enter()
         .append('text')
         .attr('class', 'task-label')
-        .attr('x', (d: Task, i: number) => 100 + i * 50)
+        .attr('x', (d: Task, i: number) => 100 + i * 80)
         .attr('y', 20)
         .text((d: Task) => d.title)
         .attr('font-size', '12px');
 
-      // Відображення майлстоунів
+      // Відображення майлстоунів і ліній зв'язку
       const milestoneSelection = d3
         .select(this)
         .selectAll<SVGRectElement, Milestone>('rect.milestone')
@@ -85,19 +97,32 @@ class Graph {
         .enter()
         .append('rect')
         .attr('class', 'milestone')
-        .attr('x', (d: Milestone, i: number) => 250 + i * 50)
+        .attr('x', (d: Milestone, i: number) => 300 + i * 80)
         .attr('y', -10)
         .attr('width', 20)
         .attr('height', 20)
         .attr('fill', 'red');
 
+      // Додавання ліній зв'язку для майлстоунів
+      milestoneSelection.each(function (d, i) {
+        d3.select(this.parentNode as SVGGElement) // Використовуємо привід типу тут
+          .append('line')
+          .attr('x1', 0)
+          .attr('y1', 0)
+          .attr('x2', 300 + i * 80 + 10) // центр квадрата
+          .attr('y2', 0)
+          .attr('stroke', 'black')
+          .attr('stroke-width', 1);
+      });
+
+      // Додати текст для майлстоунів
       d3.select(this)
         .selectAll<SVGTextElement, Milestone>('text.milestone-label')
         .data(branch.milestones)
         .enter()
         .append('text')
         .attr('class', 'milestone-label')
-        .attr('x', (d: Milestone, i: number) => 250 + i * 50)
+        .attr('x', (d: Milestone, i: number) => 300 + i * 80 + 10) // центр квадрата
         .attr('y', 30)
         .text((d: Milestone) => d.title)
         .attr('font-size', '12px');
