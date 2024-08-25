@@ -1,1 +1,20 @@
-node_modules
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Вихідні папки
+dist/
+build/
+
+# Екземпляри середовища розробки
+.vscode/
+.idea/
+.DS_Store
+
+# Локальні змінні середовища
+.env
+
+# Тимчасові файли
+*.log
