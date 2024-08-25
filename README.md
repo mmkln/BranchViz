@@ -16,10 +16,11 @@ BranchViz is a project management visualization library that uses a branch and t
 
 To install BranchViz, use npm:
 
+````
+
 ```bash
 npm install branchviz
 ```
-````
 
 ## Usage
 
