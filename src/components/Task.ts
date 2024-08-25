@@ -1,4 +1,7 @@
-class Task {
+// src/components/Task.ts
+import { Task as TaskInterface } from './interfaces';
+
+class Task implements TaskInterface {
   title: string;
   status: string;
 

@@ -1,7 +1,12 @@
-class Branch {
+// src/components/Branch.ts
+import { Branch as BranchInterface, Task, Milestone } from './interfaces';
+import TaskClass from './Task';
+import MilestoneClass from './Milestone';
+
+class Branch implements BranchInterface {
   name: string;
-  tasks: any[];
-  milestones: any[];
+  tasks: TaskClass[];
+  milestones: MilestoneClass[];
 
   constructor(name: string) {
     this.name = name;
@@ -9,11 +14,11 @@ class Branch {
     this.milestones = [];
   }
 
-  addTask(task: any): void {
+  addTask(task: TaskClass): void {
     this.tasks.push(task);
   }
 
-  addMilestone(milestone: any): void {
+  addMilestone(milestone: MilestoneClass): void {
     this.milestones.push(milestone);
   }
 }

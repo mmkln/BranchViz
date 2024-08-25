@@ -1,13 +1,18 @@
+// src/components/Graph.ts
 import * as d3 from 'd3';
 import Branch from './Branch';
 import Task from './Task';
 import Milestone from './Milestone';
+import { Branch as BranchInterface } from './interfaces';
 
 class Graph {
-  private svg: any;
+  private svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
   private branches: Branch[];
 
   constructor(containerId: string) {
+    // Очищення попереднього вмісту контейнера
+    d3.select(`#${containerId}`).selectAll('*').remove();
+
     this.svg = d3
       .select(`#${containerId}`)
       .append('svg')
@@ -22,74 +27,80 @@ class Graph {
     return branch;
   }
 
-  addTaskToBranch(branchName: string, taskTitle: string): void {
-    const branch = this.branches.find((b) => b.name === branchName);
-    if (branch) {
-      const task = new Task(taskTitle);
-      branch.addTask(task);
-    } else {
-      console.error(`Branch with name ${branchName} not found`);
-    }
-  }
-
-  addMilestoneToBranch(
-    branchName: string,
-    milestoneTitle: string,
-    date: Date
-  ): void {
-    const branch = this.branches.find((b) => b.name === branchName);
-    if (branch) {
-      const milestone = new Milestone(milestoneTitle, date);
-      branch.addMilestone(milestone);
-    } else {
-      console.error(`Branch with name ${branchName} not found`);
-    }
-  }
-
   render(): void {
     console.log('Rendering graph with branches:', this.branches);
     this.svg.selectAll('*').remove(); // Очищення попереднього вмісту
 
-    this.branches.forEach((branch, index) => {
-      const group = this.svg
-        .append('g')
-        .attr('transform', `translate(50, ${50 + index * 100})`);
+    const branchGroups = this.svg
+      .selectAll<SVGGElement, Branch>('g.branch')
+      .data(this.branches)
+      .enter()
+      .append('g')
+      .attr('class', 'branch')
+      .attr(
+        'transform',
+        (d: Branch, i: number) => `translate(50, ${50 + i * 100})`
+      );
 
-      // Відображення гілки
-      group.append('text').text(branch.name).attr('x', 0).attr('y', 0);
+    // Відображення гілок
+    branchGroups
+      .append('text')
+      .text((d: Branch) => d.name)
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('font-size', '16px')
+      .attr('font-weight', 'bold');
 
-      // Відображення задач
-      branch.tasks.forEach((task, taskIndex) => {
-        group
-          .append('circle')
-          .attr('cx', 150 + taskIndex * 50)
-          .attr('cy', 0)
-          .attr('r', 10)
-          .attr('fill', 'blue');
+    // Відображення задач для кожної гілки
+    branchGroups.each(function (branch: Branch) {
+      const taskSelection = d3
+        .select(this)
+        .selectAll<SVGCircleElement, Task>('circle.task')
+        .data(branch.tasks)
+        .enter()
+        .append('circle')
+        .attr('class', 'task')
+        .attr('cx', (d: Task, i: number) => 100 + i * 50)
+        .attr('cy', 0)
+        .attr('r', 10)
+        .attr('fill', 'blue');
 
-        group
-          .append('text')
-          .text(task.title)
-          .attr('x', 150 + taskIndex * 50)
-          .attr('y', 20);
-      });
+      // Додати текст для задач
+      d3.select(this)
+        .selectAll<SVGTextElement, Task>('text.task-label')
+        .data(branch.tasks)
+        .enter()
+        .append('text')
+        .attr('class', 'task-label')
+        .attr('x', (d: Task, i: number) => 100 + i * 50)
+        .attr('y', 20)
+        .text((d: Task) => d.title)
+        .attr('font-size', '12px');
 
       // Відображення майлстоунів
-      branch.milestones.forEach((milestone, milestoneIndex) => {
-        group
-          .append('rect')
-          .attr('x', 300 + milestoneIndex * 50)
-          .attr('y', -10)
-          .attr('width', 20)
-          .attr('height', 20)
-          .attr('fill', 'red');
+      const milestoneSelection = d3
+        .select(this)
+        .selectAll<SVGRectElement, Milestone>('rect.milestone')
+        .data(branch.milestones)
+        .enter()
+        .append('rect')
+        .attr('class', 'milestone')
+        .attr('x', (d: Milestone, i: number) => 250 + i * 50)
+        .attr('y', -10)
+        .attr('width', 20)
+        .attr('height', 20)
+        .attr('fill', 'red');
 
-        group
-          .append('text')
-          .text(milestone.title)
-          .attr('x', 300 + milestoneIndex * 50)
-          .attr('y', 30);
-      });
+      d3.select(this)
+        .selectAll<SVGTextElement, Milestone>('text.milestone-label')
+        .data(branch.milestones)
+        .enter()
+        .append('text')
+        .attr('class', 'milestone-label')
+        .attr('x', (d: Milestone, i: number) => 250 + i * 50)
+        .attr('y', 30)
+        .text((d: Milestone) => d.title)
+        .attr('font-size', '12px');
     });
   }
 }
